@@ -5,6 +5,8 @@ const { scan, cleanItem, diskUsage } = require('./scanner');
 // Chạy qua XWayland (ổn định), giống local-ai.
 app.commandLine.appendSwitch('ozone-platform', 'x11');
 app.disableHardwareAcceleration();
+// Ubuntu mới chặn user namespace nên sandbox của Chromium không chạy được trong AppImage.
+app.commandLine.appendSwitch('no-sandbox');
 
 // Chỉ những mục có trong lần quét gần nhất mới được phép xoá: renderer chỉ gửi id, không gửi đường dẫn.
 let known = new Map();

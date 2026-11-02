@@ -6,9 +6,29 @@
   "main": "main.js",
   "scripts": {
     "start": "env -u ELECTRON_RUN_AS_NODE electron . --no-sandbox",
-    "scan": "node scanner.js"
+    "scan": "node scanner.js",
+    "dist": "electron-builder --linux AppImage"
   },
   "devDependencies": {
-    "electron": "^33.0.0"
+    "electron": "^33.0.0",
+    "electron-builder": "^25.0.0"
+  },
+  "build": {
+    "appId": "vn.makeai.diskcleaner",
+    "productName": "Disk Cleaner",
+    "files": [
+      "main.js",
+      "preload.js",
+      "scanner.js",
+      "renderer/**/*"
+    ],
+    "linux": {
+      "category": "Utility",
+      "target": [
+        "AppImage"
+      ],
+      "maintainer": "tvhuy@makeai.vn"
+    },
+    "artifactName": "DiskCleaner-${version}.${ext}"
   }
 }
