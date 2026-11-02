@@ -1,0 +1,14 @@
+{
+  "name": "disk-cleaner",
+  "productName": "Disk Cleaner",
+  "version": "1.0.0",
+  "description": "Tìm và dọn rác trên đĩa: node_modules, thư mục build, cache, Docker",
+  "main": "main.js",
+  "scripts": {
+    "start": "env -u ELECTRON_RUN_AS_NODE electron . --no-sandbox",
+    "scan": "node scanner.js"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0"
+  }
+}
