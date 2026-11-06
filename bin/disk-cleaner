@@ -1,0 +1,5 @@
+#!/bin/sh
+# Khởi động Disk Cleaner. Dùng /usr/bin/python3 vì GTK4/libadwaita nằm ở Python hệ thống (không phải pyenv).
+ROOT="$(dirname "$(dirname "$(readlink -f "$0")")")"
+export DISKCLEANER_LAUNCHER="$0"
+PYTHONPATH="$ROOT${PYTHONPATH:+:$PYTHONPATH}" exec /usr/bin/python3 -B -m diskcleaner "$@"

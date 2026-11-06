@@ -1,71 +1,75 @@
 # Disk Cleaner
 
-Ứng dụng desktop (Electron) tìm và dọn rác trên đĩa cho Linux: `node_modules`, thư mục build, cache và dữ liệu Docker không dùng.
+Ứng dụng desktop (GTK4 + libadwaita, Python) tìm và dọn rác trên đĩa Linux: thư mục build, cache, Docker, tệp lớn, tệp trùng lặp.
 
-Giao diện chia hai nửa: bên trái là vòng tròn dung lượng ổ đĩa với con số "có thể dọn" đếm chạy lên, bên phải là danh sách rác theo nhóm.
+## Cài đặt
 
-## Quét được gì
+Cần GNOME/GTK4 với libadwaita >= 1.5 (Ubuntu 24.04 trở lên có sẵn). Nếu thiếu:
 
-| Nhóm | Ví dụ |
+```bash
+sudo apt install python3-gi gir1.2-gtk-4.0 gir1.2-adw-1
+```
+
+```bash
+./install.sh              # cài cho người dùng hiện tại, không cần root
+./install.sh --uninstall  # gỡ
+```
+
+Sau khi cài, mở "Disk Cleaner" từ menu ứng dụng hoặc chạy `disk-cleaner`. Chạy thẳng từ mã nguồn: `./bin/disk-cleaner`.
+
+> App chạy bằng `/usr/bin/python3` (Python của hệ thống), vì thư viện `gi` nằm ở đó chứ không có trong pyenv/venv.
+
+## Tìm những gì
+
+| Nhóm | Gồm |
 |---|---|
 | Build / cài đặt trong project | `node_modules`, `.next`, `target` (Maven/Cargo), `bin`/`obj` (.NET), `.venv`, `.gradle` |
-| Cache | npm, npx, pip, Playwright, Prisma, Electron, cache VS Code, thùng rác, các thư mục lớn trong `~/.cache` |
+| Cache | npm, npx, pip, Yarn, pnpm, Gradle, Maven, Cargo, Playwright, Prisma, Electron, thumbnails, Chrome/Firefox, Hugging Face, PyTorch, VS Code, thùng rác, các thư mục lớn trong `~/.cache` |
 | Docker | build cache, image, container đã dừng, volume không dùng |
 | Tệp lớn | 40 tệp lớn nhất trong home (mặc định từ 200 MB), bỏ qua thư mục ẩn |
-| Tệp trùng lặp | So theo kích thước, hash 64 KB đầu, rồi hash toàn bộ. Luôn giữ bản cũ nhất |
-| Hệ thống | cache apt, journal. Chạy qua `pkexec` (polkit), hiện hộp thoại mật khẩu, chỉ các lệnh cố định `apt-get clean` và `journalctl --vacuum-size=100M` |
+| Tệp trùng lặp | So theo kích thước, hash 64 KB đầu, rồi hash toàn bộ. Luôn giữ bản cũ nhất. Bỏ qua bản sao trong `dist/`, `build/`, `site-packages` |
+| Hệ thống | cache apt, journal. Chạy qua `pkexec` (polkit) và hiện hộp thoại mật khẩu; chỉ hai lệnh cố định `apt-get clean` và `journalctl --vacuum-size=100M` |
 
-## Tính năng khác
+Mỗi mục kèm cách tạo lại (ví dụ `npm install`) và nhãn:
 
-- **Dung lượng thư mục**: tab treemap, bấm để đào sâu vào thư mục, chuột phải để mở trong trình quản lý tệp.
-- **Xuất CSV**: xuất danh sách đang hiển thị (theo bộ lọc) ra file CSV.
-- **Chạy nền**: trong Cài đặt, bật khay hệ thống, tự khởi động cùng máy (bản AppImage) và nhắc dọn sau N ngày. Trên GNOME cần tiện ích AppIndicator để thấy biểu tượng khay.
-- Tệp lớn và tệp trùng được chuyển vào thùng rác (tắt được trong Cài đặt); cache/build luôn xoá hẳn.
-- Tìm kiếm, lọc, sắp xếp, ẩn mục không muốn thấy nữa, huỷ quét.
+- **An toàn**: cache, hoặc project đã lâu không hoạt động. Được chọn sẵn (trừ mục cần root).
+- **Xem lại**: project có hoạt động trong 14 ngày gần đây (theo git và thời gian sửa `package.json`), hoặc dữ liệu có thể mất như Docker volume, model đã tải, tệp lớn, tệp trùng. Không chọn sẵn.
 
-Mỗi mục có kèm cách tạo lại (ví dụ `npm install`) và được gắn nhãn:
+## Tính năng
 
-- **An toàn**: cache, hoặc project đã lâu không hoạt động. Được chọn sẵn.
-- **Xem lại**: project có hoạt động trong 14 ngày gần đây (theo commit git và thời gian sửa `package.json`), hoặc dữ liệu có thể mất như Docker volume, model đã tải. Không chọn sẵn.
+- **Dung lượng thư mục**: tab treemap, bấm vào ô để đào sâu, chuột phải để mở trong trình quản lý tệp.
+- **Xuất CSV**: danh sách đang hiển thị (theo bộ lọc), mở được bằng Excel.
+- **Chạy nền**: trong Cài đặt, bật biểu tượng khay hệ thống, tự khởi động cùng máy và nhắc dọn sau N ngày. Cần tiện ích AppIndicator của GNOME (Ubuntu bật sẵn).
+- Tìm kiếm (Ctrl+F), lọc theo mức độ, sắp xếp, chọn cả nhóm, ẩn mục không muốn thấy nữa, huỷ quét.
 
 ## An toàn khi xoá
 
 - Bấm **Quét máy** chỉ đọc, không xoá gì.
-- Xoá phải qua hộp xác nhận liệt kê từng mục. Cache và thư mục build bị xoá **vĩnh viễn** (chuyển vào thùng rác thì không giải phóng dung lượng). Tệp lớn và tệp trùng mặc định vào thùng rác.
-- Giao diện chỉ gửi *id* của mục đã quét, không gửi đường dẫn. Tiến trình chính chỉ xoá những mục có trong lần quét gần nhất.
+- Xoá phải qua hộp xác nhận liệt kê từng mục. Cache và thư mục build bị xoá **vĩnh viễn** (chuyển vào thùng rác thì không giải phóng dung lượng). Tệp lớn và tệp trùng mặc định vào thùng rác (tắt được trong Cài đặt).
 - Từ chối mọi đường dẫn nằm ngoài thư mục home.
 - Chỉ nhận diện thư mục build khi có file dự án đi kèm (ví dụ `bin/` chỉ tính khi có `.csproj` cạnh nó), để không xoá nhầm thư mục trùng tên chứa mã nguồn thật.
+- Lệnh chạy bằng quyền root và lệnh Docker là các lệnh cố định trong mã, không nhận gì từ bên ngoài.
 
-## Chạy
-
-```bash
-npm install
-npm start          # mở giao diện
-npm run scan       # chỉ quét và in kết quả ra terminal, không mở giao diện
-```
-
-Hoặc dùng `./disk-cleaner.sh` (đường dẫn trong script đang trỏ tới thư mục trên máy tác giả, hãy sửa lại nếu clone về máy khác).
-
-## Đóng gói AppImage
+## Phát triển
 
 ```bash
-npm run dist       # tạo dist/DiskCleaner-<version>.AppImage
+./bin/disk-cleaner                          # chạy giao diện
+/usr/bin/python3 -m diskcleaner scan        # chỉ quét và in kết quả ra terminal
+/usr/bin/python3 -m unittest discover -s tests -v
 ```
 
-Chép file AppImage vào `~/Applications` và tạo file `.desktop` để có lối tắt trong menu ứng dụng. AppImage cần `libfuse2` (`sudo apt install libfuse2`).
-
-## Cấu trúc
-
-| File | Vai trò |
+| Đường dẫn | Vai trò |
 |---|---|
-| `scanner.js` | Logic quét và dọn, dùng được độc lập qua `npm run scan` |
-| `main.js` | Tiến trình chính Electron, cầu nối IPC |
-| `preload.js` | Cầu nối an toàn giữa giao diện và tiến trình chính |
-| `renderer/` | Giao diện (HTML, CSS, JS thuần) |
-| `build/icon.png` | Icon ứng dụng |
+| `diskcleaner/scanner.py` | Logic quét, dọn, xuất CSV. Không phụ thuộc GTK |
+| `diskcleaner/app.py` | Cửa sổ chính, cài đặt, luồng quét/dọn |
+| `diskcleaner/widgets.py` | Vòng tròn dung lượng và treemap tự vẽ (cairo) |
+| `diskcleaner/layout.py` | Thuật toán squarified treemap |
+| `diskcleaner/tray.py` | Khay hệ thống qua D-Bus (StatusNotifierItem + dbusmenu), không cần GTK3 |
+| `diskcleaner/store.py` | Cài đặt và thống kê, lưu ở `~/.config/disk-cleaner/settings.json` |
+| `data/` | Icon và file `.desktop` |
 
 ## Hạn chế
 
-- Chỉ quét thư mục home, chưa quét các phân vùng khác.
-- Chưa gợi ý gỡ kernel cũ hay ứng dụng không dùng.
-- Chỉ hỗ trợ Linux.
+- Chỉ Linux, nhắm tới GNOME. Trên shell không hỗ trợ khay thì tính năng chạy nền không hiện biểu tượng.
+- Cache `~/.cache` ngoài danh sách có sẵn chỉ được liệt kê khi lớn hơn 200 MB và luôn ở mức "Xem lại".
+- Mục `bin`/`obj` của .NET chỉ nhận diện qua file `.csproj`.

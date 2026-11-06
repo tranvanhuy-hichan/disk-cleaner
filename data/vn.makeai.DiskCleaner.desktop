@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Disk Cleaner
+Comment=Tìm và dọn rác trên đĩa (node_modules, build, cache, Docker, tệp lớn, tệp trùng)
+Exec=@EXEC@
+Icon=vn.makeai.DiskCleaner
+Terminal=false
+Categories=Utility;System;GTK;
+StartupWMClass=vn.makeai.DiskCleaner
