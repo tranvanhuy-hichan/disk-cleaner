@@ -10,7 +10,9 @@
 </head>
 <body>
   <aside id="hero">
-    <div class="brand"><img src="logo.svg" alt=""><span>Disk Cleaner</span></div>
+    <div class="brand"><img src="logo.svg" alt=""><span>Disk Cleaner</span>
+      <button id="settingsBtn" class="icon" type="button" title="Cài đặt" aria-label="Cài đặt">⚙</button>
+    </div>
 
     <div id="ringWrap" class="idle">
       <span class="ripple"></span><span class="ripple r2"></span>
@@ -38,9 +40,11 @@
     <div id="diskLine" class="disk-line"></div>
 
     <div id="legend"></div>
+    <div id="stats" class="stats"></div>
 
     <div class="cta">
       <button id="mainBtn" class="big">Quét máy</button>
+      <button id="cancelBtn" type="button" class="ghost" hidden>Huỷ quét</button>
       <div class="mini">
         <button id="selSafe" type="button" hidden>Chọn mục an toàn</button>
         <button id="selNone" type="button" hidden>Bỏ chọn</button>
@@ -51,9 +55,31 @@
   <main>
     <header>
       <h2 id="title">Kết quả quét</h2>
+      <div id="tabs" role="tablist">
+        <button type="button" class="tab on" data-v="list" role="tab">Danh sách</button>
+        <button type="button" class="tab" data-v="tree" role="tab">Dung lượng thư mục</button>
+      </div>
       <div id="status">Bấm "Quét máy" để tìm rác. Công cụ chỉ quét, chưa xoá gì.</div>
     </header>
+    <div id="toolbar" hidden>
+      <input id="search" type="search" placeholder="Tìm theo tên hoặc đường dẫn…  (Ctrl+F)" aria-label="Tìm kiếm">
+      <div id="chips" role="group" aria-label="Lọc theo mức độ">
+        <button type="button" data-f="all" class="chip on">Tất cả</button>
+        <button type="button" data-f="safe" class="chip">An toàn</button>
+        <button type="button" data-f="review" class="chip">Xem lại</button>
+      </div>
+      <button id="exportBtn" type="button" class="ghost sm" title="Xuất danh sách đang hiển thị ra file CSV">Xuất CSV</button>
+      <select id="sort" aria-label="Sắp xếp">
+        <option value="size">Lớn nhất trước</option>
+        <option value="name">Theo tên</option>
+      </select>
+    </div>
     <section id="list"></section>
+    <section id="treeView" hidden>
+      <div id="crumbs"></div>
+      <div id="treemap"></div>
+      <div id="treeHint">Bấm vào ô thư mục để xem bên trong. Chuột phải để mở trong trình quản lý tệp.</div>
+    </section>
   </main>
 
   <dialog id="confirm">
@@ -61,7 +87,7 @@
       <h3>Xác nhận dọn</h3>
       <p id="confirmText"></p>
       <ul id="confirmList"></ul>
-      <p class="muted">Các mục này bị <b>xoá vĩnh viễn</b> (không vào thùng rác).</p>
+      <p id="confirmNote" class="muted"></p>
       <div class="row">
         <button value="cancel">Huỷ</button>
         <button value="ok" class="danger">Xoá</button>
@@ -69,6 +95,28 @@
     </form>
   </dialog>
 
+  <dialog id="settings">
+    <form method="dialog" id="settingsForm">
+      <h3>Cài đặt</h3>
+      <label class="opt"><input type="checkbox" id="oTrash"> <span>Tệp lớn: chuyển vào thùng rác thay vì xoá vĩnh viễn<small>Dung lượng chỉ được trả lại sau khi bạn dọn thùng rác. Cache và thư mục build luôn xoá hẳn vì tạo lại được.</small></span></label>
+      <label class="opt"><input type="checkbox" id="oLarge"> <span>Tìm tệp lớn trong thư mục home</span></label>
+      <label class="opt"><input type="checkbox" id="oDup"> <span>Tìm tệp trùng lặp<small>So theo kích thước, rồi hash nội dung. Luôn giữ lại bản cũ nhất.</small></span></label>
+      <label class="opt"><input type="checkbox" id="oBg"> <span>Chạy nền ở khay hệ thống, nhắc dọn định kỳ<small>Đóng cửa sổ chỉ ẩn xuống khay, tự khởi động cùng máy (bản AppImage). Trên GNOME cần tiện ích AppIndicator để thấy biểu tượng khay.</small></span></label>
+      <div class="fields">
+        <label>Bỏ qua mục nhỏ hơn <input type="number" id="oMin" min="1" max="1000"> MB</label>
+        <label>Tệp lớn từ <input type="number" id="oLargeMB" min="50" max="10000"> MB</label>
+        <label>Tệp trùng từ <input type="number" id="oDupMB" min="1" max="10000"> MB</label>
+        <label>Nhắc sau <input type="number" id="oRemind" min="0" max="90"> ngày (0 = tắt)</label>
+      </div>
+      <div id="ignoredBox"></div>
+      <div class="row">
+        <button value="cancel">Đóng</button>
+        <button value="ok" class="primary">Lưu</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" role="status" aria-live="polite"></div>
   <script src="app.js"></script>
 </body>
 </html>

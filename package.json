@@ -1,7 +1,7 @@
 {
   "name": "disk-cleaner",
   "productName": "Disk Cleaner",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Tìm và dọn rác trên đĩa: node_modules, thư mục build, cache, Docker",
   "main": "main.js",
   "scripts": {
@@ -20,7 +20,8 @@
       "main.js",
       "preload.js",
       "scanner.js",
-      "renderer/**/*"
+      "renderer/**/*",
+      "build/icon.png"
     ],
     "linux": {
       "category": "Utility",
